@@ -34,17 +34,17 @@ exports.createProduct = async (req,res) => {
     }
 }
 
-exports.getAllProducts = async (req,res) => {
-    try{
-
-        const Products = await FoodProduct.find();
-        res.status(200).send(_.pick(Products,["name","price","manufacture"]));
-    }
-    catch (error) {
-        console.log("Server error",error);
+exports.getAllProducts = async (req, res) => {
+    try {
+        const products = await FoodProduct.find(); // Retrieve all products
+        const filteredProducts = products.map(product => _.pick(product.toObject(), ["name", "price", "manufacture"])); // Applying lodash pick to each product
+        res.status(200).send(filteredProducts); // Send filtered products as the response
+    } catch (error) {
+        console.log("Server error", error);
         res.status(500).send("Server error");
     }
 }
+
 
 exports.getAsingleProduct = async (req,res) => {
     try{
@@ -85,7 +85,9 @@ exports.updateProduct = async (req,res) => {
 
 exports.deleteProduct = async (req,res) => {
     try{
-
+        const product = await FoodProduct.findByIdAndDelete(req.params.id);
+        if (!product) res.status(404).send("Product not Found!");
+        res.status(200).send(product);
     }
     catch (error) {
         console.log(error);
