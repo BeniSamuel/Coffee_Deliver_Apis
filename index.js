@@ -6,6 +6,7 @@ const createUser = require("./Routes/Auth/signin")
 const loginUser = require("./Routes/Auth/login")
 const bodyParser = require("body-parser")
 const ProductRoute = require("./Routes/Product/product")
+const paymentRoutes = require("./Routes/Payment/payment")
 
 // Connection MongoDB
 require('./Config/db')
@@ -23,6 +24,7 @@ app.get("/",(req,res)=>{
 app.use("/api/auth",createUser)
 app.use("/api/auth",loginUser)
 app.use("/api/products",ProductRoute)
+app.use("/api/payments", paymentRoutes)
 
 const port = process.env.PORT || 3000
 

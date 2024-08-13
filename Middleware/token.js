@@ -12,7 +12,7 @@ async function verifyToken (req,res,next) {
         if (!token) res.status(400).send("No token found!");
         
         const verify = jwt.verify(token,config.secretKey.jwt_secret);
-        req.user = verify.user;
+        req.user = verify;
         next()
     }
     catch(ex){

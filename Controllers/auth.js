@@ -11,14 +11,15 @@ exports.createUser = async (req,res) => {
       const userInformSchema = Joi.object({
         username: Joi.string().required(),
         email: Joi.string().email().required(),
-        password: Joi.string().required()
+        password: Joi.string().required(),
+        isAdmin: Joi.boolean().valid(true, false).default(false),
       });
 
       const { error } = userInformSchema.validate(req.body);
-      if(error) res.status(400).send(error.details[0].message);
+      if (error) return res.status(400).send(error.details[0].message);
       
       const user =  await User.findOne({email:req.body.email});
-      if (user) res.status(400).send("The user already exist!");
+      if (user) return res.status(400).send("The user already exist!");
 
       const genSalt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(req.body.password,genSalt);
@@ -26,7 +27,8 @@ exports.createUser = async (req,res) => {
       let newUser = new User({
         username: req.body.username,
         email: req.body.email,
-        password: hashedPassword
+        password: hashedPassword,
+        isAdmin: req.body.isAdmin
       });
 
       newUser = await newUser.save();
@@ -43,27 +45,27 @@ exports.createUser = async (req,res) => {
     }
 }
 
-exports.loginUser= async (req,res)=>{
+exports.loginUser = async (req,res)=>{
     try{
            
-        const LoginSchema= Joi.object({
+        const LoginSchema = Joi.object({
             email:Joi.string().email().required(),
             password:Joi.string().required()
         })
 
-        const {error}= LoginSchema.validate(req.body)
-        if(error) res.status(400).send(error.details[0].message)
+        const {error} = LoginSchema.validate(req.body)
+        if(error) return res.status(400).send(error.details[0].message)
         
-        const user= await User.findOne({email:req.body.email})
-        if(!user) res.status(400).send("Invalid email or Password")
+        const user = await User.findOne({email:req.body.email})
+        if (!user) return res.status(400).send("Invalid email or Password")
 
-        const passwordVerify= await bcrypt.compare(
+        const passwordVerify = await bcrypt.compare(
             req.body.password,user.password
         )
 
-        if(!passwordVerify) res.status(400).send("Invalid email or Password")
+        if (!passwordVerify) return res.status(400).send("Invalid email or Password")
 
-        const token= jwt.sign(
+        const token = jwt.sign(
             {email:user.email},
             config.secretKey.jwt_secret
         )
